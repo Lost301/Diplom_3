@@ -1,6 +1,4 @@
 """Базовый класс Page Object: общие методы работы с элементами."""
-import time
-
 import allure
 from selenium.common.exceptions import ElementClickInterceptedException, TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
@@ -49,15 +47,27 @@ class BasePage:
                 return
             except ElementClickInterceptedException as error:
                 # поверх элемента может вспыхнуть оверлей модального окна -
-                # ждём его исчезновения и повторяем клик
+                # ждём его исчезновения и кликабельности элемента, затем повторяем клик
                 last_error = error
                 self.wait_modal_overlay_invisible()
-                time.sleep(1)
+                self.wait_for_element_clickable(locator)
         raise last_error
 
     @allure.step("Получить текст элемента {locator}")
     def get_text(self, locator):
         return self.wait_for_element_visible(locator).text
+
+    @allure.step("Найти элементы {locator}")
+    def find_elements(self, locator):
+        return self.driver.find_elements(*locator)
+
+    @allure.step("Посчитать элементы {locator}")
+    def count_elements(self, locator):
+        return len(self.find_elements(locator))
+
+    @allure.step("Дождаться выполнения условия: {message}")
+    def wait_until(self, condition, timeout=15, message="условие выполнено"):
+        return WebDriverWait(self.driver, timeout).until(condition, message=message)
 
     @allure.step("Проверить, что элемент {locator} отображается")
     def is_element_displayed(self, locator):
@@ -83,6 +93,18 @@ class BasePage:
     @allure.step("Открыть страницу {url}")
     def open(self, url):
         self.driver.get(url)
+
+    @allure.step("Получить текущий URL")
+    def get_current_url(self):
+        return self.driver.current_url
+
+    @allure.step("Открыть новую вкладку браузера")
+    def open_new_tab(self):
+        self.driver.switch_to.new_window("tab")
+
+    @allure.step("Переключиться на вкладку с индексом {index}")
+    def switch_to_tab(self, index):
+        self.driver.switch_to.window(self.driver.window_handles[index])
 
     @allure.step("Проверить, что текущий URL соответствует {url}")
     def is_current_url(self, url):

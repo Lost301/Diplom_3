@@ -1,6 +1,5 @@
 """Page Object главной страницы (конструктор бургеров)."""
 import allure
-from selenium.webdriver.support.ui import WebDriverWait
 
 from data import Urls
 from locators import MainPageLocators, ModalLocators
@@ -43,11 +42,19 @@ class MainPage(BasePage):
 
     @allure.step("Получить значение счётчика ингредиента с индексом {index}")
     def get_ingredient_counter(self, index=0):
-        cards = self.driver.find_elements(*MainPageLocators.INGREDIENT_CARD)
+        cards = self.find_elements(MainPageLocators.INGREDIENT_CARD)
         counters = cards[index].find_elements(*MainPageLocators.INGREDIENT_COUNTER_VALUE)
         # счётчик появляется у ингредиента только после добавления в заказ,
         # до этого его значение равно нулю
         return int(counters[0].text) if counters else 0
+
+    @allure.step("Проверить, что отображается конструктор заказов")
+    def is_constructor_displayed(self):
+        return self.is_element_displayed(MainPageLocators.CONSTRUCTOR_BASKET)
+
+    @allure.step("Проверить, что модальное окно закрыто")
+    def is_modal_closed(self):
+        return self.count_elements(ModalLocators.OPENED_MODAL) == 0
 
     @allure.step("Кликнуть по кнопке «Оформить заказ»")
     def click_order_button(self):
@@ -58,8 +65,10 @@ class MainPage(BasePage):
     def wait_order_number(self, timeout=40):
         number_element = self.wait_for_element_visible(ModalLocators.ORDER_NUMBER, timeout=timeout)
         # номер появляется не мгновенно: сначала в модалке заглушка «9999»
-        WebDriverWait(self.driver, timeout).until(
-            lambda d: number_element.text.strip().isdigit()
-            and number_element.text.strip() != "9999"
+        self.wait_until(
+            lambda _: number_element.text.strip().isdigit()
+            and number_element.text.strip() != "9999",
+            timeout=timeout,
+            message="появления номера заказа в модальном окне",
         )
         return int(number_element.text.strip())

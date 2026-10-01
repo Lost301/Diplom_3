@@ -52,7 +52,7 @@ allure open allure-report
 
 ```
 .
-├── conftest.py          # фикстуры: driver (параметр --browser), пользователь через API
+├── conftest.py          # фикстуры: driver (параметр --browser), открытие страниц, пользователь через API
 ├── data.py              # URL-ы приложения и API
 ├── helpers.py           # генерация тестовых данных (uuid)
 ├── locators.py          # селекторы страниц

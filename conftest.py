@@ -10,6 +10,8 @@ from selenium.webdriver.firefox.options import Options as FirefoxOptions
 
 from data import Urls
 from helpers import generate_user
+from pages.feed_page import FeedPage
+from pages.main_page import MainPage
 
 DEFAULT_BROWSER = "chrome"
 # Путь к бинарю Firefox можно переопределить переменной окружения FIREFOX_BINARY
@@ -58,6 +60,18 @@ def driver(request):
     browser_driver.implicitly_wait(5)
     yield browser_driver
     browser_driver.quit()
+
+
+@pytest.fixture
+def open_main_page(driver):
+    """Предусловие: открыть главную страницу."""
+    MainPage(driver).open_main_page()
+
+
+@pytest.fixture
+def open_feed_page(driver):
+    """Предусловие: открыть страницу ленты заказов."""
+    FeedPage(driver).open_feed_page()
 
 
 @pytest.fixture

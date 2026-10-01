@@ -18,9 +18,18 @@ class MainPageLocators:
 
 
 class FeedPageLocators:
-    # Счётчики «Выполнено за все время» / «Выполнено за сегодня»
-    TOTAL_ORDERS_COUNTER = (By.XPATH, "(//p[contains(@class,'OrderFeed_number__')])[1]")
-    TODAY_ORDERS_COUNTER = (By.XPATH, "(//p[contains(@class,'OrderFeed_number__')])[2]")
+    # Счётчики «Выполнено за все время» / «Выполнено за сегодня» —
+    # привязка к тексту заголовка, а не к порядковому номеру в списке
+    TOTAL_ORDERS_COUNTER = (
+        By.XPATH,
+        "//p[contains(text(),'Выполнено за все время')]"
+        "/following-sibling::p[contains(@class,'OrderFeed_number__')]",
+    )
+    TODAY_ORDERS_COUNTER = (
+        By.XPATH,
+        "//p[contains(text(),'Выполнено за сегодня')]"
+        "/following-sibling::p[contains(@class,'OrderFeed_number__')]",
+    )
 
     # Раздел «В работе» — список с зелёной подсветкой (класс orderListReady):
     # в него попадают заказы со статусом «В работе», при пустом списке
